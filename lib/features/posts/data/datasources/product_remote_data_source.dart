@@ -16,7 +16,7 @@ class ProductRemoteDataSourceImp implements ProductRemoteDataSource {
   @override
   Future<List<ProductModel>> getProducts() async {
     //print('DataSource');
-    var url = Uri.https('jsonplaceholder.typicode.com', '/posts');
+    var url = Uri.https('0.0.0.10:3000', '/');
     var response = await http.get(url);
     if(response.statusCode == 200) {
       return convert.jsonDecode(response.body)
@@ -28,7 +28,7 @@ class ProductRemoteDataSourceImp implements ProductRemoteDataSource {
   }
   Future<List<ProductModel>> createProducts() async {
     //print('DataSource');
-    var url = Uri.https('jsonplaceholder.typicode.com', '/posts');
+    var url = Uri.https('jsonplaceholder.typicode.com', '/post');
     var response = await http.get(url);
     if(response.statusCode == 200) {
       return convert.jsonDecode(response.body)
