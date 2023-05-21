@@ -2,30 +2,30 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:clean_architecture_bloc/features/posts/presentation/blocs/posts_bloc.dart';
+import 'package:clean_architecture_bloc/features/posts/presentation/blocs/products_bloc.dart';
 
-class PostsPage extends StatefulWidget {
-  const PostsPage({super.key});
+class ProductsPage extends StatefulWidget {
+  const ProductsPage({super.key});
 
   @override
-  State<PostsPage> createState() => _PostsPageState();
+  State<ProductsPage> createState() => _ProductsPageState();
 }
 
-class _PostsPageState extends State<PostsPage> {
+class _ProductsPageState extends State<ProductsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<PostsBloc>().add(GetPosts());
+    context.read<ProductsBloc>().add(GetPosts());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Posts'),
+        title: Text('Products'),
       ),
 
-      body: BlocBuilder<PostsBloc, PostsState>(
+      body: BlocBuilder<ProductsBloc, ProductsState>(
         builder: (context, state) {
           if(state is Loading) {
             return const Center(
@@ -34,7 +34,7 @@ class _PostsPageState extends State<PostsPage> {
           } else if(state is Loaded) {
             return SingleChildScrollView(
               child: Column(
-                children: state.posts.map((post) {
+                children: state.products.map((post) {
                   return Container(
                     margin: EdgeInsets.all(5),
                     padding: EdgeInsets.all(5),
@@ -42,8 +42,8 @@ class _PostsPageState extends State<PostsPage> {
 
                     child: ListTile(
                       leading: Text(post.id.toString()),
-                      title: Text(post.title),
-                      subtitle: Text(post.body),
+                      title: Text(post.name),
+                      subtitle: Text(post.description),
                     ),
                   );
                 }).toList()
