@@ -18,19 +18,19 @@ class _ProductsPageState extends State<ProductsPage> {
     super.initState();
     context.read<ProductsBloc>().add(GetPosts());
   }
-  clearSharedPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('newLaunch');
-  }
 
   @override
-
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Products'),
       ),
-
+      floatingActionButton:  ElevatedButton(
+          child: Text("Create Product"),
+          onPressed: () async {
+            addProduct(context);
+          }
+      ),
       body: BlocBuilder<ProductsBloc, ProductsState>(
         builder: (context, state) {
           if(state is Loading) {
@@ -51,16 +51,11 @@ class _ProductsPageState extends State<ProductsPage> {
                           leading: Text(post.id.toString()),
                           title: Text(post.name),
                           subtitle: Text(post.description),
+                          trailing: Text(post.price.toString()),
                         ),
-
                       ),
-                      ElevatedButton(
-                        child: Text("Clear SharedPrefs"),
-                        onPressed: clearSharedPrefs,
-                      )
                     ],
                   );
-
                 }).toList()
               ),
             );
@@ -70,10 +65,6 @@ class _ProductsPageState extends State<ProductsPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(state.error, style: const TextStyle(color: Colors.red)),
-                  ElevatedButton(
-                    child: Text("Clear SharedPrefs"),
-                    onPressed: clearSharedPrefs,
-                  )
                 ],
               ),
             );
@@ -82,6 +73,75 @@ class _ProductsPageState extends State<ProductsPage> {
           }
         }
       ),
+    );
+  }
+  Future<void> addProduct(BuildContext context) async {
+    final nameController = TextEditingController();
+    final descriptionController = TextEditingController();
+    final priceController = TextEditingController();
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Add your link"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: "Name",
+                  ),
+                ),
+                TextField(
+                  controller: descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: "Description",
+                  ),
+                ),
+                TextField(
+                  controller: priceController,
+                  decoration: const InputDecoration(
+                    labelText: "Price",
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (nameController.text.isEmpty ||
+                    descriptionController.text.isEmpty || priceController.text.isEmpty) {
+                  const snackBar = SnackBar(
+                    content:
+                    Text('Hey you should type something! Try again ;)'),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                } else {
+                  final Map<String, dynamic> newProduct = {
+                    'name': nameController.text,
+                    'name': descriptionController.text,
+                    'price': priceController.text,
+                  };
+                  nameController.clear();
+                  descriptionController.clear();
+                  priceController.clear();
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text("Add"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

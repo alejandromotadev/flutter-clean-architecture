@@ -5,7 +5,7 @@ class ProductModel extends Product {
     required int id,
     required String name,
     required String description,
-    required int price
+    required double price
   }) : super(id: id, name: name, description: description, price: price);
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {

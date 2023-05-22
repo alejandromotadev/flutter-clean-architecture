@@ -11,9 +11,10 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<List<Product>> getProducts() async {
     //print('Repository');
     return await productRemoteDataSource.getProducts();
-    return await productRemoteDataSource.updateProducts();
-    return await productRemoteDataSource.deleteProducts();
-    return await productRemoteDataSource.createProducts();
 
+  }
+  @override
+  Future<Product>createProduct(String name, String description, double price) async{
+    return await productRemoteDataSource.createProduct(name, description, price);
   }
 }

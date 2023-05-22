@@ -10,6 +10,11 @@ class Loaded extends ProductsState {
   Loaded({required this.products});
 }
 
+class LoadedOffline extends ProductsState {
+  final List<Product> products;
+  LoadedOffline({required this.products});
+}
+
 class Wifi extends ProductsState{}
 
 class Error extends ProductsState {

@@ -27,7 +27,6 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
           }
         }
       } else {
-        print("error");
         emit(Error(error: "Connection failed"));
       }
     });

@@ -1,65 +1,49 @@
 import 'dart:convert' as convert;
-import 'package:clean_architecture_bloc/features/posts/domain/entities/product.dart';
+import 'dart:convert';
+import 'dart:async';
 import 'package:http/http.dart' as http;
-
 import 'package:clean_architecture_bloc/features/posts/data/models/product_model.dart';
 
 abstract class ProductRemoteDataSource {
   // https://jsonplaceholder.typicode.com/posts
   Future<List<ProductModel>> getProducts();
-  Future<List<ProductModel>> updateProducts();
-  Future<List<ProductModel>> deleteProducts();
-  Future<List<ProductModel>> createProducts();
+  Future<ProductModel> createProduct(
+      String name, String description, double price);
 }
 
 class ProductRemoteDataSourceImp implements ProductRemoteDataSource {
   @override
   Future<List<ProductModel>> getProducts() async {
-    //print('DataSource');
-    var url = Uri.https('0.0.0.10:3000', '/');
-    var response = await http.get(url);
-    if(response.statusCode == 200) {
-      return convert.jsonDecode(response.body)
-              .map<ProductModel>((data) => ProductModel.fromJson(data))
-              .toList();
-    } else {
-      throw Exception();
-    }
-  }
-  Future<List<ProductModel>> createProducts() async {
-    //print('DataSource');
-    var url = Uri.https('jsonplaceholder.typicode.com', '/post');
-    var response = await http.get(url);
-    if(response.statusCode == 200) {
-      return convert.jsonDecode(response.body)
+    var response =
+        await http.get(Uri.parse('http://192.168.29.154:1709/products/getall/'));
+    if (response.statusCode == 200) {
+      return convert
+          .jsonDecode(response.body)
           .map<ProductModel>((data) => ProductModel.fromJson(data))
           .toList();
     } else {
       throw Exception();
     }
   }
-  Future<List<ProductModel>> updateProducts() async {
-    //print('DataSource');
-    var url = Uri.https('jsonplaceholder.typicode.com', '/posts');
-    var response = await http.get(url);
-    if(response.statusCode == 200) {
-      return convert.jsonDecode(response.body)
-          .map<ProductModel>((data) => ProductModel.fromJson(data))
-          .toList();
+
+  @override
+  Future<ProductModel> createProduct(
+      String name, String description, double price) async {
+    final response = await http.post(
+      Uri.parse("http://172.17.15.123:1709/products/getall/"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'name': name,
+        'description': description,
+        'price': price,
+      }),
+    );
+    if (response.statusCode == 201) {
+      return ProductModel.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception();
-    }
-  }
-  Future<List<ProductModel>> deleteProducts() async {
-    //print('DataSource');
-    var url = Uri.https('jsonplaceholder.typicode.com', '/del');
-    var response = await http.get(url);
-    if(response.statusCode == 200) {
-      return convert.jsonDecode(response.body)
-          .map<ProductModel>((data) => ProductModel.fromJson(data))
-          .toList();
-    } else {
-      throw Exception();
+      throw Exception('Failed to create product.');
     }
   }
 }

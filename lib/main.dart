@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:clean_architecture_bloc/features/posts/presentation/pages/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture_bloc/features/posts/presentation/pages/products_page.dart';
@@ -31,37 +30,9 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home:  LoadPage(),
+        home: const ProductsPage(),
       ),
     );
   }
 }
-class LoadPage extends StatefulWidget {
-  LoadPage({Key? key}) : super(key: key);
 
-  @override
-  LoadPageState createState() => LoadPageState();
-}
-
-class LoadPageState extends State {
-  late bool newLaunch = false;
-
-  @override
-  void initState() {
-    super.initState();
-    loadNewLaunch();
-  }
-
-  loadNewLaunch() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      bool _newLaunch = ((prefs.getBool('newLaunch') ?? true));
-      newLaunch = _newLaunch;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: newLaunch ? SplashScreen() : const ProductsPage());
-  }
-}
