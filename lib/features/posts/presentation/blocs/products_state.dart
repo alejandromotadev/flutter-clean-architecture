@@ -1,7 +1,8 @@
 part of 'products_bloc.dart';
 
 @immutable
-abstract class ProductsState {}
+abstract class ProductsState {
+}
 
 class Loading extends ProductsState {}
 
@@ -13,6 +14,13 @@ class Loaded extends ProductsState {
 class LoadedOffline extends ProductsState {
   final List<Product> products;
   LoadedOffline({required this.products});
+}
+
+class Updating extends ProductsState{}
+
+class Updated extends ProductsState{
+  final List<Product> products;
+  Updated({required this.products});
 }
 
 class Wifi extends ProductsState{}

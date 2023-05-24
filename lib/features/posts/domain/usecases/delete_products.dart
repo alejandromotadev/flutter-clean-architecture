@@ -1,12 +1,12 @@
 import 'package:clean_architecture_bloc/features/posts/domain/entities/product.dart';
 import 'package:clean_architecture_bloc/features/posts/domain/repositories/product_repository.dart';
 
-class CreateProductUseCase {
+class DeleteProductByIdUseCase {
   final ProductRepository productRepository;
 
-  CreateProductUseCase(this.productRepository);
+  DeleteProductByIdUseCase(this.productRepository);
 
   Future<void> execute(Product product) async {
-    return await productRepository.createProduct(product);
+    return await productRepository.deleteProductById(product);
   }
 }

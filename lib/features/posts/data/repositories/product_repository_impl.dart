@@ -14,7 +14,25 @@ class ProductRepositoryImpl implements ProductRepository {
 
   }
   @override
-  Future<Product>createProduct(String name, String description, double price) async{
-    return await productRemoteDataSource.createProduct(name, description, price);
+  Future<Product> getProductById(int id) async {
+    //print('Repository');
+    return await productRemoteDataSource.getProductById(id);
+
+  }
+  @override
+  Future<void>createProduct(Product product) async{
+    return await productRemoteDataSource.createProduct(product);
+  }
+   @override
+  Future<void> deleteProductById(Product product) async {
+    //print('Repository');
+    return await productRemoteDataSource.deleteProductById(product);
+
+  }
+   @override
+  Future<void> updateProductById(Product product) async {
+    //print('Repository');
+    return await productRemoteDataSource.updateProductById(product);
+
   }
 }

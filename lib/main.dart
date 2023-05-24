@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:clean_architecture_bloc/features/posts/domain/usecases/update_products.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture_bloc/features/posts/presentation/pages/products_page.dart';
@@ -21,7 +22,17 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<ProductsBloc>(
-          create: (BuildContext context) => ProductsBloc(getPostsUseCase: usecaseConfig.getPostsUsecase!)
+          create: (BuildContext context) => ProductsBloc(
+            getPostsUseCase: usecaseConfig.getPostsUsecase!,
+          )
+        ),
+        BlocProvider<ProductBlocModify>(
+          create: (BuildContext context) => ProductBlocModify(
+            updateProductUsecase : usecaseConfig.updateProductByIdUseCase!,
+            deleteProductUsecase: usecaseConfig.deleteProductUsecase!,
+            getPostsUseCase: usecaseConfig.getPostsUsecase!,
+            createProductUseCase: usecaseConfig.createProductUseCase!
+          )
         ),
 
       ],
