@@ -7,19 +7,19 @@ import 'package:clean_architecture_bloc/features/posts/data/models/product_model
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class ProductRemoteDataSource {
-  // https://jsonplaceholder.typicode.com/posts
   Future<List<ProductModel>> getProducts();
   Future<ProductModel> getProductById(int id);
   Future<void> createProduct(Product product);
   Future<void> deleteProductById(Product product);
   Future<void> updateProductById(Product product);
 }
-
+const String baseUrl = "http://172.17.1.86:1709";
 class ProductRemoteDataSourceImp implements ProductRemoteDataSource {
+
   @override
   Future<List<ProductModel>> getProducts() async {
     var response =
-        await http.get(Uri.parse('http://172.17.1.86:1709/products/getall/'));
+        await http.get(Uri.http(baseUrl, '/products/getall/'));
     if (response.statusCode == 200) {
       return convert
           .jsonDecode(response.body)
@@ -32,8 +32,8 @@ class ProductRemoteDataSourceImp implements ProductRemoteDataSource {
 
   @override
   Future<ProductModel> getProductById(int id) async {
-    var response = await http
-        .get(Uri.parse('hhttp://172.17.1.86:1709/products/getbyid/:id'));
+    var response =
+        await http.get(Uri.http(baseUrl, '/products/getbyid/$id'));
     if (response.statusCode == 200) {
       return convert
           .jsonDecode(response.body)
@@ -46,7 +46,7 @@ class ProductRemoteDataSourceImp implements ProductRemoteDataSource {
 
   @override
   Future<void> createProduct(Product product) async {
-      var url = Uri.http('172.17.1.86:1709', '/products/updateProduct/');
+      var url = Uri.http(baseUrl, '/products/updateProduct/');
       var body = {
         'name': product.name,
         'description': product.description,
@@ -59,7 +59,6 @@ class ProductRemoteDataSourceImp implements ProductRemoteDataSource {
   @override
   Future<void> deleteProductById(Product product) async {
     final prefs = await SharedPreferences.getInstance();
-    print('This is delete ${product.id}');
     if (prefs.containsKey('updateProductOffline')) {
       String? encodedDataCache = prefs.getString('updateProductOffline');
       prefs.remove('updateNoteOffline');
@@ -86,7 +85,7 @@ class ProductRemoteDataSourceImp implements ProductRemoteDataSource {
       }
     } else {
       var url =
-          Uri.http('172.17.1.86:1709', '/products/deleteProduct/${product.id}');
+          Uri.http(baseUrl, '/products/deleteProduct/${product.id}');
       await http.delete(url);
     }
   }
@@ -113,7 +112,7 @@ class ProductRemoteDataSourceImp implements ProductRemoteDataSource {
             body: convert.jsonEncode(object), headers: headers);
       }
     } else {
-      var url = Uri.http('172.17.1.86:1709', '/products/updateProduct/');
+      var url = Uri.http(baseUrl, '/products/updateProduct/');
       var body = {
         'id': product.id,
         'name': product.name,
@@ -123,6 +122,5 @@ class ProductRemoteDataSourceImp implements ProductRemoteDataSource {
       var headers = {'Content-Type': 'application/json'};
       await http.post(url, body: convert.jsonEncode(body), headers: headers);
     }
-    // print('Deleted');
   }
 }

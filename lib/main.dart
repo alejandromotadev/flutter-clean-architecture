@@ -28,8 +28,8 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<ProductBlocModify>(
           create: (BuildContext context) => ProductBlocModify(
-            updateProductUsecase : usecaseConfig.updateProductByIdUseCase!,
-            deleteProductUsecase: usecaseConfig.deleteProductUsecase!,
+            updateProductUseCase : usecaseConfig.updateProductByIdUseCase!,
+            deleteProductUseCase: usecaseConfig.deleteProductUsecase!,
             getPostsUseCase: usecaseConfig.getPostsUsecase!,
             createProductUseCase: usecaseConfig.createProductUseCase!
           )

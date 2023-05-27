@@ -1,14 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
-
 import 'package:clean_architecture_bloc/features/posts/domain/entities/product.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:clean_architecture_bloc/features/posts/presentation/blocs/products_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductsPage extends StatefulWidget {
@@ -33,7 +28,7 @@ class _ProductsPageState extends State<ProductsPage> {
         connectivityResult == ConnectivityResult.wifi) {
       final prefs = await SharedPreferences.getInstance();
       // Check if notes were deleted offline
-      if (prefs.containsKey('deleteProductsoffline')) {
+      if (prefs.containsKey('deleteProductsOffline')) {
         // print('Products deleted offline');
         String? encodedPksCache = prefs.getString('deleteProductOffline');
         if (encodedPksCache != null) {
@@ -152,10 +147,10 @@ class _ProductsPageState extends State<ProductsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Products'),
+        title: const Text('Products'),
       ),
       floatingActionButton: ElevatedButton(
-          child: Text("Create Product"),
+          child: const Text("Create Product"),
           onPressed: () async {
             addProduct(context);
           }),
@@ -175,8 +170,8 @@ class _ProductsPageState extends State<ProductsPage> {
                     GestureDetector(
                       onTap: () => {updateProduct(context, post, state)},
                       child: Container(
-                        margin: EdgeInsets.all(5),
-                        padding: EdgeInsets.all(5),
+                        margin: const EdgeInsets.all(5),
+                        padding: const EdgeInsets.all(5),
                         color: Colors.black12,
                         child: ListTile(
                           leading: Text(post.id.toString()),
@@ -273,7 +268,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   descriptionController.clear();
                   priceController.clear();
                   Navigator.of(context).pop();
-                }gi
+                }
               },
               child: const Text("Add"),
             ),

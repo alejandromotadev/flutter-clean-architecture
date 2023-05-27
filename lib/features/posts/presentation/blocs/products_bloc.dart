@@ -1,5 +1,5 @@
 
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture_bloc/features/posts/domain/usecases/create_products_usecase.dart';
 import 'package:meta/meta.dart';
 import 'package:clean_architecture_bloc/features/posts/domain/entities/product.dart';
@@ -32,15 +32,15 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
   }
 }
 class ProductBlocModify extends Bloc<ProductsEvent, ProductsState> {
-  final UpdateProductByIdUseCase updateProductUsecase;
-  final DeleteProductByIdUseCase deleteProductUsecase;
+  final UpdateProductByIdUseCase updateProductUseCase;
+  final DeleteProductByIdUseCase deleteProductUseCase;
   final GetProductsUseCase getPostsUseCase;
   final CreateProductUseCase createProductUseCase;
   
   ProductBlocModify(
       {
-      required this.updateProductUsecase,
-      required this.deleteProductUsecase,
+      required this.updateProductUseCase,
+      required this.deleteProductUseCase,
       required this.getPostsUseCase,
       required this.createProductUseCase
       }) : super(Updating()) {
@@ -48,7 +48,7 @@ class ProductBlocModify extends Bloc<ProductsEvent, ProductsState> {
       if (event is UpdateProduct) {
         try {
           emit(Updating());
-          await updateProductUsecase.execute(event.product);
+          await updateProductUseCase.execute(event.product);
         } catch (e) {
           emit(Error(error: e.toString()));
         }
@@ -63,7 +63,7 @@ class ProductBlocModify extends Bloc<ProductsEvent, ProductsState> {
       }
       if (event is DeleteProduct) {
         try {
-          await deleteProductUsecase.execute(event.product);
+          await deleteProductUseCase.execute(event.product);
           List<Product> products = await getPostsUseCase.execute();
           emit(Updated(products: products));
         } catch (e) {
