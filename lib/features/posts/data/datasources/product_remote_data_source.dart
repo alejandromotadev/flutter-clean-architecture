@@ -2,6 +2,7 @@ import 'dart:convert' as convert;
 import 'dart:convert';
 import 'dart:async';
 import 'package:clean_architecture_bloc/features/posts/domain/entities/product.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:clean_architecture_bloc/features/posts/data/models/product_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,115 +13,173 @@ abstract class ProductRemoteDataSource {
   Future<void> createProduct(Product product);
   Future<void> deleteProductById(Product product);
   Future<void> updateProductById(Product product);
+  Future<bool> checkInternetConnection();
+  Future<List<ProductModel>> getCachedProducts();
+  Future<void> cacheProducts(List<ProductModel> products);
+  Future<void> removeCachedProduct(int id);
+  Future<void> cacheProductForCreation(Product product);
+  Future<void> cacheProductIdForDeletion(int id);
 }
-const String baseUrl = "http://172.17.1.86:1709";
+
+
 class ProductRemoteDataSourceImp implements ProductRemoteDataSource {
+  final String baseUrl = "192.168.1.103:1709"; //baseUrl
+  final cacheKey = 'product_cache'; // Clave para la cache
+  final SharedPreferences sharedPreferences;
+  ProductRemoteDataSourceImp({required this.sharedPreferences});
+
 
   @override
   Future<List<ProductModel>> getProducts() async {
-    var response =
-        await http.get(Uri.http(baseUrl, '/products/getall/'));
-    if (response.statusCode == 200) {
-      return convert
-          .jsonDecode(response.body)
-          .map<ProductModel>((data) => ProductModel.fromJson(data))
-          .toList();
+    final hasConnection = await checkInternetConnection();
+    if (hasConnection) {
+      final response =
+      await http.get(Uri.http(baseUrl, '/products/getall/'));
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body) as List<dynamic>;
+        final products = jsonData
+            .map((productJson) => ProductModel.fromJson(productJson))
+            .toList();
+
+        await cacheProducts(products);
+
+        return products;
+      } else {
+        throw Exception('Failed to load products');
+      }
     } else {
-      throw Exception();
+      return getCachedProducts();
     }
   }
 
   @override
   Future<ProductModel> getProductById(int id) async {
-    var response =
-        await http.get(Uri.http(baseUrl, '/products/getbyid/$id'));
-    if (response.statusCode == 200) {
-      return convert
-          .jsonDecode(response.body)
-          .map<ProductModel>((data) => ProductModel.fromJson(data))
-          .toList();
+    final hasConnection = await checkInternetConnection();
+
+    if (hasConnection) {
+      final response =
+      await http.get(Uri.http(baseUrl, '/products/getbyid/$id'));
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return ProductModel.fromJson(jsonData);
+      } else {
+        throw Exception('Failed to load product');
+      }
     } else {
-      throw Exception();
+      final cachedProducts = await getCachedProducts();
+      final product = cachedProducts.firstWhere((p) => p.id == id);
+      return product;
     }
   }
 
   @override
   Future<void> createProduct(Product product) async {
-      var url = Uri.http(baseUrl, '/products/updateProduct/');
-      var body = {
-        'name': product.name,
-        'description': product.description,
-        'price': product.price,
-      };
-      var headers = {'Content-Type': 'application/json'};
-      await http.post(url, body: convert.jsonEncode(body), headers: headers);
+    final hasConnection = await checkInternetConnection();
+
+    if (hasConnection) {
+      final response = await http.post(
+        Uri.http(baseUrl, '/products/createProduct/'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(ProductModel.fromEntity(product).toJson()),
+      );
+      response;
+      if (response.statusCode != 200) {
+        throw Exception('Failed to create product');
+      }
+    } else {
+      await cacheProductForCreation(product);
+    }
   }
 
   @override
   Future<void> deleteProductById(Product product) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey('updateProductOffline')) {
-      String? encodedDataCache = prefs.getString('updateProductOffline');
-      prefs.remove('updateNoteOffline');
-      if (encodedDataCache != null) {
-        List<dynamic> decodedList = json.decode(encodedDataCache);
-        List<Product> products =
-            decodedList.map((map) => Product.fromMap(map)).toList();
+    final hasConnection = await checkInternetConnection();
 
-        List<Map<String, Object>> body = [];
-        for (var updateProducts in products) {
-          var object = {
-            'id': updateProducts.id,
-            'data': {
-              'name': updateProducts.name,
-              'description': updateProducts.description,
-              'price': updateProducts.price
-            }
-          };
-          body.add(object);
-        }
-        var url = Uri.https('http://172.17.1.86:1709/products/deleteProduct/');
-        var headers = {'Content-Type': 'application/json'};
-        await http.patch(url, body: convert.jsonEncode(body), headers: headers);
+    if (hasConnection) {
+      final response = await http.delete(Uri.http(baseUrl, '/products/deleteProduct/${product.id}'));
+
+      if (response.statusCode == 200) {
+        await removeCachedProduct(product.id);
+      } else {
+        throw Exception('Failed to delete product');
       }
     } else {
-      var url =
-          Uri.http(baseUrl, '/products/deleteProduct/${product.id}');
-      await http.delete(url);
+      await cacheProductIdForDeletion(product.id);
     }
   }
 
   @override
   Future<void> updateProductById(Product product) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey('deleteProductOffline')) {
-      String? encodedPkCache = prefs.getString('deleteProductOffline');
-      prefs.remove('deleteProductOffline');
-      if (encodedPkCache != null) {
-        List<dynamic> decodedList = json.decode(encodedPkCache);
-        List<Product> notes =
-            decodedList.map((map) => Product.fromMap(map)).toList();
+    final hasConnection = await checkInternetConnection();
 
-        List<int> pks = [];
-        for (var deletePk in notes) {
-          pks.add(deletePk.id);
-        }
-        var object = {'primary_keys': pks};
-        var url = Uri.https('http://172.17.1.86:1709/products/updateProduct/');
-        var headers = {'Content-Type': 'application/json'};
-        await http.post(url,
-            body: convert.jsonEncode(object), headers: headers);
+    if(hasConnection){
+      final response = await http.post(
+        Uri.http(baseUrl, '/products/updateProduct/'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(ProductModel.fromEntity(product).toJson()),
+      );
+      if (response.statusCode != 200) {
+        throw Exception('Failed to create product');
       }
-    } else {
-      var url = Uri.http(baseUrl, '/products/updateProduct/');
-      var body = {
-        'id': product.id,
-        'name': product.name,
-        'description': product.description,
-        'price': product.price,
-      };
-      var headers = {'Content-Type': 'application/json'};
-      await http.post(url, body: convert.jsonEncode(body), headers: headers);
+    }else {
+      await cacheProductForCreation(product);
     }
   }
+
+  @override
+  Future<bool> checkInternetConnection() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    return connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi;
+  }
+
+  @override
+  Future<List<ProductModel>> getCachedProducts() async {
+    final jsonString = sharedPreferences.getString(cacheKey);
+
+    if (jsonString != null) {
+      final jsonList = json.decode(jsonString) as List<dynamic>;
+      return jsonList
+          .map((jsonProduct) => ProductModel.fromJson(jsonProduct))
+          .toList();
+    }
+
+    return [];
+  }
+
+  @override
+  Future<void> cacheProducts(List<ProductModel> products) async {
+    final jsonList = products.map((product) => product.toJson()).toList();
+    await sharedPreferences.setString(cacheKey, json.encode(jsonList));
+  }
+
+  @override
+  Future<void> removeCachedProduct(int id) async {
+    final cachedProducts = await getCachedProducts();
+    final updatedProducts =
+    cachedProducts.where((product) => product.id != id).toList();
+    await cacheProducts(updatedProducts);
+  }
+
+  @override
+  Future<void> cacheProductForCreation(Product product) async {
+    final cachedProducts = await getCachedProducts();
+    cachedProducts.add(ProductModel.fromEntity(product));
+    await cacheProducts(cachedProducts);
+  }
+
+  @override
+  Future<void> cacheProductIdForDeletion(int id) async {
+    final cachedProducts = await getCachedProducts();
+    final updatedProducts =
+    cachedProducts.where((product) => product.id != id).toList();
+    await cacheProducts(updatedProducts);
+  }
+
+
+
+  
 }
+

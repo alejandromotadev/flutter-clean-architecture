@@ -21,122 +21,6 @@ class _ProductsPageState extends State<ProductsPage> {
     context.read<ProductsBloc>().add(GetPosts());
   }
 
-  void checkInternetConnection() async {
-    // Verify internet connection on first open
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile ||
-        connectivityResult == ConnectivityResult.wifi) {
-      final prefs = await SharedPreferences.getInstance();
-      // Check if notes were deleted offline
-      if (prefs.containsKey('deleteProductsOffline')) {
-        // print('Products deleted offline');
-        String? encodedPksCache = prefs.getString('deleteProductOffline');
-        if (encodedPksCache != null) {
-          final BuildContext currentContext = context;
-          Future.microtask((() {
-            final productBloc = currentContext.read<ProductBlocModify>();
-            productBloc.add(DeleteProduct(
-                product: Product(
-                    id: 0,
-                    name: 'deleted',
-                    description: 'deleted',
-                    price: 0.0)));
-          }));
-        }
-      }
-      // Check if Products were edited offline
-      if (prefs.containsKey('updateProductOffline')) {
-        // print('products edited offline');
-        String? encodedNotesEditedCache =
-            prefs.getString('updateProductsOffline');
-        if (encodedNotesEditedCache != null) {
-          final BuildContext currentContext = context;
-          Future.microtask((() {
-            final productsBloc = currentContext.read<ProductBlocModify>();
-            productsBloc.add(UpdateProduct(
-                product: Product(
-                    id: 0, name: 'edited', description: 'edited', price: 0.0)));
-          }));
-        }
-      }
-    } else {
-      final BuildContext currentContext = context;
-      Future.microtask(() {
-        final notesBloc = currentContext.read<ProductsBloc>();
-        notesBloc.add(GetProductsOffline());
-        const snackBar = SnackBar(
-          content: Text('No internet connection'),
-          duration: Duration(days: 365),
-        );
-        ScaffoldMessenger.of(currentContext).showSnackBar(snackBar);
-      });
-    }
-
-    // Verify connectivity changes
-    subscription = Connectivity()
-        .onConnectivityChanged
-        .listen((ConnectivityResult result) async {
-      if (result == ConnectivityResult.wifi ||
-          result == ConnectivityResult.mobile) {
-        final prefs = await SharedPreferences.getInstance();
-        // Check if notes were added offline
-
-        // Check if notes were deleted offline
-        if (prefs.containsKey('deleteProductsOffline')) {
-          // print('Notes deleted offline');
-          String? encodedPksCache = prefs.getString('deleteNoteOffline');
-          if (encodedPksCache != null) {
-            final BuildContext currentContext = context;
-            Future.microtask((() {
-              final productBloc = currentContext.read<ProductBlocModify>();
-              productBloc.add(DeleteProduct(
-                  product: Product(
-                      id: 0,
-                      name: 'deleted',
-                      description: 'deleted',
-                      price: 0.0)));
-            }));
-          }
-        }
-        // Check if notes were edited offline
-        if (prefs.containsKey('updateNoteOffline')) {
-          // print('Notes edited offline');
-          String? encodedNotesEditedCache =
-              prefs.getString('updateNoteOffline');
-          if (encodedNotesEditedCache != null) {
-            final BuildContext currentContext = context;
-            Future.microtask((() {
-              final productBloc = currentContext.read<ProductBlocModify>();
-              productBloc.add(UpdateProduct(
-                  product: Product(
-                      id: 0,
-                      name: 'edited',
-                      description: 'edited',
-                      price: 0.0)));
-            }));
-          }
-        }
-        final BuildContext currentContext = context;
-        Future.microtask((() async {
-          final productBloc = currentContext.read<ProductsBloc>();
-          // notesBloc.add(GetNotes());
-          await Future.delayed(const Duration(milliseconds: 95))
-              .then((value) => productBloc.add(GetPosts()))
-              .then((value) =>
-                  ScaffoldMessenger.of(currentContext).clearSnackBars());
-          // ScaffoldMessenger.of(currentContext).clearSnackBars();
-        }));
-      } else {
-        context.read<ProductsBloc>().add(GetProductsOffline());
-        const snackBar = SnackBar(
-          content: Text('No internet connection'),
-          duration: Duration(days: 365),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }
-    });
-  }
-
   @override
   dispose() {
     subscription.cancel();
@@ -346,7 +230,6 @@ class _ProductsPageState extends State<ProductsPage> {
                   await Future.delayed(const Duration(milliseconds: 95)).then(
                       (value) => BlocProvider.of<ProductsBloc>(context)
                           .add(GetPosts()));
-                  //BlocProvider.of<ProductsBloc>(context).add(GetPosts());
                   nameController.clear();
                   descriptionController.clear();
                   priceController.clear();
@@ -359,7 +242,6 @@ class _ProductsPageState extends State<ProductsPage> {
               onPressed: () async {
                 BlocProvider.of<ProductBlocModify>(context)
                     .add(DeleteProduct(product: product));
-
                 Navigator.of(context).pop();
               },
               child: const Text(
