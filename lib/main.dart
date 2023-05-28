@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<ProductsBloc>(
           create: (BuildContext context) => ProductsBloc(
             getPostsUseCase: usecaseConfig.getPostsUsecase!,
+              remoteDataSource: usecaseConfig.postRemoteDataSourceImp!,
           )
         ),
         BlocProvider<ProductBlocModify>(
@@ -31,7 +32,8 @@ class MyApp extends StatelessWidget {
             updateProductUseCase : usecaseConfig.updateProductByIdUseCase!,
             deleteProductUseCase: usecaseConfig.deleteProductUsecase!,
             getPostsUseCase: usecaseConfig.getPostsUsecase!,
-            createProductUseCase: usecaseConfig.createProductUseCase!
+            createProductUseCase: usecaseConfig.createProductUseCase!,
+            remoteDataSource: usecaseConfig.postRemoteDataSourceImp!,
           )
         ),
 

@@ -17,12 +17,21 @@ class ProductModel extends Product {
     );
   }
 
-  factory ProductModel.fromEntity(Product post) {
+  factory ProductModel.fromEntity(Product product) {
     return ProductModel(
-      id: post.id,
-      name: post.name,
-      description: post.description,
-      price: post.price
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'price': price,
+    };
   }
 }
