@@ -7,7 +7,7 @@ import 'package:clean_architecture_bloc/usecase_config.dart';
 import 'package:clean_architecture_bloc/features/posts/presentation/blocs/products_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-UseCaseConfig usecaseConfig = UseCaseConfig();
+UsecaseConfig usecaseConfig = UsecaseConfig();
 
 
 void main() {
@@ -23,14 +23,14 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<ProductsBloc>(
           create: (BuildContext context) => ProductsBloc(
-            getPostsUseCase: usecaseConfig.getPostsUseCase!,
+            getPostsUseCase: usecaseConfig.getPostsUsecase!,
           )
         ),
         BlocProvider<ProductBlocModify>(
           create: (BuildContext context) => ProductBlocModify(
             updateProductUseCase : usecaseConfig.updateProductByIdUseCase!,
-            deleteProductUseCase: usecaseConfig.deleteProductUseCase!,
-            getPostsUseCase: usecaseConfig.getPostsUseCase!,
+            deleteProductUseCase: usecaseConfig.deleteProductUsecase!,
+            getPostsUseCase: usecaseConfig.getPostsUsecase!,
             createProductUseCase: usecaseConfig.createProductUseCase!
           )
         ),
