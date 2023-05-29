@@ -4,7 +4,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture_bloc/features/posts/presentation/blocs/products_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductsPage extends StatefulWidget {
   const ProductsPage({super.key});
@@ -18,19 +17,19 @@ class _ProductsPageState extends State<ProductsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<ProductsBloc>().add(GetPosts());
+    context.read<ProductsBloc>().add(InitialState());
   }
+
   @override
   dispose() {
     subscription.cancel();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Products'),
-      ),
+      appBar: AppBar(title: const Text("Products")),
       floatingActionButton: ElevatedButton(
           child: const Text("Create Product"),
           onPressed: () async {
@@ -46,20 +45,47 @@ class _ProductsPageState extends State<ProductsPage> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                  children: state.products.map((post) {
+                  children: state.products.map((product) {
                 return Column(
                   children: [
                     GestureDetector(
-                      onTap: () => {updateProduct(context, post, state)},
+                      onTap: () => {selectedProduct(context, product, state)},
                       child: Container(
                         margin: const EdgeInsets.all(5),
                         padding: const EdgeInsets.all(5),
                         color: Colors.black12,
                         child: ListTile(
-                          leading: Text(post.id.toString()),
-                          title: Text(post.name),
-                          subtitle: Text(post.description),
-                          trailing: Text(post.price.toString()),
+                          leading: Text(product.id.toString()),
+                          title: Text(product.name),
+                          subtitle: Text(product.description),
+                          trailing: Text(product.price.toString()),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList()),
+            ),
+          );
+        } else if (state is LoadedOffline) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                  children: state.productsOffline.map((productOffline) {
+                return Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () => {selectedProduct(context, productOffline, state)},
+                      child: Container(
+                        margin: const EdgeInsets.all(5),
+                        padding: const EdgeInsets.all(5),
+                        color: Colors.black12,
+                        child: ListTile(
+                          leading: Text(productOffline.id.toString()),
+                          title: Text(productOffline.name),
+                          subtitle: Text(productOffline.description),
+                          trailing: Text(productOffline.price.toString()),
                         ),
                       ),
                     ),
@@ -145,7 +171,7 @@ class _ProductsPageState extends State<ProductsPage> {
                       .add(CreateProduct(product: productAux));
                   await Future.delayed(const Duration(milliseconds: 95)).then(
                       (value) => BlocProvider.of<ProductsBloc>(context)
-                          .add(GetPosts()));
+                          .add(InitialState()));
                   nameController.clear();
                   descriptionController.clear();
                   priceController.clear();
@@ -160,7 +186,7 @@ class _ProductsPageState extends State<ProductsPage> {
     );
   }
 
-  Future<void> updateProduct(
+  Future<void> selectedProduct(
       BuildContext context, Product product, ProductsState state) async {
     final nameController = TextEditingController(text: product.name);
     final descriptionController =
@@ -239,8 +265,7 @@ class _ProductsPageState extends State<ProductsPage> {
                       .add(UpdateProduct(product: productAux));
                   await Future.delayed(const Duration(milliseconds: 95)).then(
                       (value) => BlocProvider.of<ProductsBloc>(context)
-                          .add(GetPosts()));
-                  //BlocProvider.of<ProductsBloc>(context).add(GetPosts());
+                          .add(InitialState()));
                   nameController.clear();
                   descriptionController.clear();
                   priceController.clear();
@@ -249,7 +274,6 @@ class _ProductsPageState extends State<ProductsPage> {
               },
               child: const Text("Update"),
             ),
-
           ],
         );
       },

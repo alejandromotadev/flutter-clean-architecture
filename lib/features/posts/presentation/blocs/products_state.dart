@@ -12,8 +12,8 @@ class Loaded extends ProductsState {
 }
 
 class LoadedOffline extends ProductsState {
-  final List<Product> products;
-  LoadedOffline({required this.products});
+  final List<Product> productsOffline;
+  LoadedOffline({required this.productsOffline});
 }
 
 class Updating extends ProductsState{}

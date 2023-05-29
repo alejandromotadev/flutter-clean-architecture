@@ -18,9 +18,8 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       : super(Loading()) {
     on<ProductsEvent>((event, emit) async {
       final connectivityResult = await (Connectivity().checkConnectivity());
-      if (connectivityResult == ConnectivityResult.wifi ||
-          connectivityResult == ConnectivityResult.mobile) {
-        if (event is GetPosts) {
+      if (connectivityResult != ConnectivityResult.none) {
+        if (event is InitialState) {
           try {
             List<Product> response = await getPostsUseCase.execute();
             emit(Loaded(products: response));
@@ -29,10 +28,10 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
           }
         }
       } else {
-        if (event is GetPosts) {
+        if (event is InitialState) {
           try {
             List<Product> response = await getPostsUseCase.execute();
-            emit(Loaded(products: response));
+            emit(LoadedOffline(productsOffline: response));
           } catch (e) {
             emit(Error(error: e.toString()));
           }

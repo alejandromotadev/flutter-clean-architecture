@@ -1,11 +1,8 @@
-import 'dart:ui';
-import 'package:clean_architecture_bloc/features/posts/domain/usecases/update_products.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture_bloc/features/posts/presentation/pages/products_page.dart';
 import 'package:clean_architecture_bloc/usecase_config.dart';
 import 'package:clean_architecture_bloc/features/posts/presentation/blocs/products_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 UsecaseConfig usecaseConfig = UsecaseConfig();
 
@@ -39,8 +36,10 @@ class MyApp extends StatelessWidget {
 
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
+          useMaterial3: true,
           primarySwatch: Colors.blue,
         ),
         home: const ProductsPage(),
